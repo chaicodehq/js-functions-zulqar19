@@ -44,18 +44,53 @@
  *   [{ rating: 3 }, { rating: 5 }].sort(byRating)
  *   // => [{ rating: 5 }, { rating: 3 }]
  */
+/**
+ * 🍛 Highway Dhaba Rating System - Higher-Order Functions
+ */
+
 export function createFilter(field, operator, value) {
-  // Your code here
+  return (obj) => {
+    const fieldValue = obj[field];
+    
+    switch (operator) {
+      case ">":   return fieldValue > value;
+      case "<":   return fieldValue < value;
+      case ">=":  return fieldValue >= value;
+      case "<=":  return fieldValue <= value;
+      case "===": return fieldValue === value;
+      default:    return false;
+    }
+  };
 }
 
 export function createSorter(field, order = "asc") {
-  // Your code here
+  return (a, b) => {
+    let valA = a[field];
+    let valB = b[field];
+
+    if (valA === valB) return 0;
+
+    const result = valA > valB ? 1 : -1;
+    
+    return order === "desc" ? result * -1 : result;
+  };
 }
 
 export function createMapper(fields) {
-  // Your code here
+  return (obj) => {
+    return fields.reduce((newObj, field) => {
+      if (field in obj) {
+        newObj[field] = obj[field];
+      }
+      return newObj;
+    }, {});
+  };
 }
 
 export function applyOperations(data, ...operations) {
-  // Your code here
+  if (!Array.isArray(data)) return [];
+
+  return operations.reduce((acc, operation) => {
+    return typeof operation === "function" ? operation(acc) : acc;
+  }, data);
 }

@@ -46,12 +46,59 @@
  */
 export function createDialogueWriter(genre) {
   // Your code here
+
+  const validGenres = ["action", "romance", "comedy", "drama"];
+
+  if (!validGenres.includes(genre)) return null;
+
+  return function (hero, villain) {
+    if (!hero || !villain) {
+      return "...";
+    }
+
+    if (genre === "action") {
+      return `${hero} says: 'Tujhe toh main dekh lunga, ${villain}!'`;
+    } else if (genre === "romance") {
+      return `${hero} whispers: '${villain}, tum mere liye sab kuch ho'`;
+    } else if (genre === "comedy") {
+      return `${hero} laughs: '${villain} bhai, kya kar rahe ho yaar!'`;
+    } else if (genre === "drama") {
+      return `${hero} cries: '${villain}, tune mera sab kuch cheen liya!'`;
+    }
+  };
 }
 
 export function createTicketPricer(basePrice) {
   // Your code here
+  if(!Number.isInteger(basePrice) || basePrice <= 0) return null;
+  return function (seatType, isWeekend = false){
+
+    
+    
+    const seats = {silver : 1 , gold : 1.5 , platinum : 2}
+    let m = seats[seatType]
+    if (!m) return null
+    let price = basePrice * m
+
+
+
+    if (isWeekend) price*=1.3
+    return Math.round(price)
+  }
 }
 
 export function createRatingCalculator(weights) {
   // Your code here
+  if(typeof weights !== "object" || Array.isArray(weights) || weights === null) return null
+
+  return function (scores) {
+
+    let total = 0
+    for (let key in weights) {
+      if (scores[key] !== undefined) {
+        total += scores[key] * weights[key]
+      }
+    }
+    return parseFloat(total.toFixed(1))
+  }
 }

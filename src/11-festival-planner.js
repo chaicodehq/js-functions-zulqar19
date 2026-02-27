@@ -48,6 +48,59 @@
  *   mgr.getAll(); // => [{ name: "Diwali", ... }, { name: "Republic Day", ... }]
  *   mgr.getUpcoming("2025-01-01", 1); // => [{ name: "Republic Day", ... }]
  */
+/**
+ * 🎉 Festival Countdown Planner - Module Pattern
+ */
+
 export function createFestivalManager() {
-  // Your code here
+  let festivals = [];
+
+  const validTypes = ["religious", "national", "cultural"];
+
+  return {
+    addFestival(name, date, type) {
+      if (!name || typeof date !== "string" || !validTypes.includes(type)) {
+        return -1;
+      }
+
+      const exists = festivals.some(f => f.name.toLowerCase() === name.toLowerCase());
+      if (exists) return -1;
+
+      const newFestival = { name, date, type };
+      festivals.push(newFestival);
+      
+      return festivals.length;
+    },
+
+    removeFestival(name) {
+      const initialLength = festivals.length;
+      festivals = festivals.filter(f => f.name.toLowerCase() !== name.toLowerCase());
+      return festivals.length < initialLength;
+    },
+
+    getAll() {
+      return festivals.map(f => ({ ...f }));
+    },
+
+    getByType(type) {
+      return festivals
+        .filter(f => f.type === type)
+        .map(f => ({ ...f }));
+    },
+
+    getUpcoming(currentDate, n = 3) {
+      if (typeof currentDate !== "string") return [];
+
+      return festivals
+        .filter(f => f.date >= currentDate) 
+        .sort((a, b) => a.date.localeCompare(b.date)) 
+        .slice(0, n) 
+        .map(f => ({ ...f })); 
+    },
+
+    getCount() {
+      return festivals.length;
+    }
+  };
 }
+

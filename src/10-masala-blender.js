@@ -52,30 +52,57 @@
  *   recipe({ name: "Haldi" })
  *   // => { name: "Haldi", form: "powder", packed: true, label: "Haldi Masala" }
  */
+/**
+ * 🌶️ Masala Spice Blender - Function Composition
+ */
+
 export function pipe(...fns) {
-  // Your code here
+  // If no functions, return the identity function (just return the input)
+  if (fns.length === 0) return (x) => x;
+
+  // Use reduce to pass the result of one function to the next (Left-to-Right)
+  return (input) => fns.reduce((acc, fn) => fn(acc), input);
 }
 
 export function compose(...fns) {
-  // Your code here
+  // If no functions, return identity
+  if (fns.length === 0) return (x) => x;
+
+  // Use reduceRight to apply functions from Right-to-Left
+  return (input) => fns.reduceRight((acc, fn) => fn(acc), input);
 }
 
+
 export function grind(spice) {
-  // Your code here
+  return { ...spice, form: "powder" };
 }
 
 export function roast(spice) {
-  // Your code here
+  return { ...spice, roasted: true, aroma: "strong" };
 }
 
 export function mix(spice) {
-  // Your code here
+  return { ...spice, mixed: true };
 }
 
 export function pack(spice) {
-  // Your code here
+  const name = spice.name || "Unknown";
+  return { ...spice, packed: true, label: `${name} Masala` };
 }
 
 export function createRecipe(steps) {
-  // Your code here
+  if (!Array.isArray(steps) || steps.length === 0) return (x) => x;
+
+  const spiceMethods = {
+    grind,
+    roast,
+    mix,
+    pack
+  };
+
+  const activeSteps = steps
+    .map(step => spiceMethods[step])
+    .filter(fn => typeof fn === "function");
+
+  return pipe(...activeSteps);
 }

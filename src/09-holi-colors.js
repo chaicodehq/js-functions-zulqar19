@@ -53,22 +53,65 @@
  *   // => { name: "red-blue", r: 128, g: 0, b: 128 }
  *   // red and blue objects are UNCHANGED
  */
+/**
+ * 🎨 Holi Color Mixer - Pure Functions
+ */
+
 export function mixColors(color1, color2) {
-  // Your code here
+  // Validation: Check if both colors exist and have the required RGB properties
+  if (!color1 || !color2 || typeof color1.r !== "number" || typeof color2.r !== "number") {
+    return null;
+  }
+
+  // Create a NEW object. No modification to original inputs.
+  return {
+    name: `${color1.name}-${color2.name}`,
+    r: Math.round((color1.r + color2.r) / 2),
+    g: Math.round((color1.g + color2.g) / 2),
+    b: Math.round((color1.b + color2.b) / 2)
+  };
 }
 
 export function adjustBrightness(color, factor) {
-  // Your code here
+  if (!color || typeof factor !== "number") return null;
+
+  // Helper to clamp values between 0 and 255
+  const clamp = (val) => Math.min(255, Math.max(0, Math.round(val * factor)));
+
+  // Return a NEW object using the spread operator to keep other properties (like name)
+  return {
+    ...color,
+    r: clamp(color.r),
+    g: clamp(color.g),
+    b: clamp(color.b)
+  };
 }
 
 export function addToPalette(palette, color) {
-  // Your code here
+  if (!Array.isArray(palette)) return color ? [color] : [];
+  if (!color) return [...palette]; // Return a copy to maintain purity
+
+  // Use spread operator instead of .push()
+  return [...palette, color];
 }
 
 export function removeFromPalette(palette, colorName) {
-  // Your code here
+  if (!Array.isArray(palette)) return [];
+
+  // .filter() is naturally pure—it returns a NEW array
+  return palette.filter(color => color.name !== colorName);
 }
 
 export function mergePalettes(palette1, palette2) {
-  // Your code here
+  const p1 = Array.isArray(palette1) ? palette1 : [];
+  const p2 = Array.isArray(palette2) ? palette2 : [];
+
+  // Combine both arrays
+  const combined = [...p1, ...p2];
+
+  // Remove duplicates by name while keeping the first occurrence
+  return combined.filter((color, index, self) => 
+    index === self.findIndex((c) => c.name === color.name)
+  );
 }
+

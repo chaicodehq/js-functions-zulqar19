@@ -63,18 +63,88 @@
  *   election.castVote("V1", "C1", r => "voted!", e => "error: " + e);
  *   // => "voted!"
  */
-export function createElection(candidates) {
-  // Your code here
+/**
+ * 🗳️ Panchayat Election System - Capstone Implementation
+ */
+
+export function createElection(candidatesList) {
+  const candidates = [...candidatesList]; 
+  const registeredVoters = new Set();
+  const votedVoters = new Set();
+  let votes = {}; 
+
+  candidates.forEach(c => { votes[c.id] = 0; });
+
+  return {
+    registerVoter(voter) {
+      if (!voter || !voter.id || voter.age < 18) return false;
+      if (registeredVoters.has(voter.id)) return false;
+      
+      registeredVoters.add(voter.id);
+      return true;
+    },
+
+    castVote(voterId, candidateId, onSuccess, onError) {
+      if (!registeredVoters.has(voterId)) return onError("Voter not registered");
+      if (votedVoters.has(voterId)) return onError("Already voted");
+      if (!votes.hasOwnProperty(candidateId)) return onError("Invalid candidate");
+
+      votedVoters.add(voterId);
+      votes[candidateId]++;
+
+      return onSuccess({ voterId, candidateId });
+    },
+
+    getResults(sortFn) {
+      const results = candidates.map(c => ({
+        ...c,
+        votes: votes[c.id] || 0
+      }));
+
+      if (typeof sortFn === "function") {
+        return results.sort(sortFn);
+      }
+      return results.sort((a, b) => b.votes - a.votes);
+    },
+
+    getWinner() {
+      const results = this.getResults(); 
+      const totalVotes = Object.values(votes).reduce((sum, v) => sum + v, 0);
+      
+      return totalVotes > 0 ? results[0] : null;
+    }
+  };
 }
 
 export function createVoteValidator(rules) {
-  // Your code here
+  return (voter) => {
+    if (!voter) return { valid: false, reason: "No voter data" };
+
+    const missing = rules.requiredFields.find(field => !(field in voter));
+    if (missing) return { valid: false, reason: `Missing field: ${missing}` };
+
+    if (voter.age < rules.minAge) return { valid: false, reason: "Underage" };
+
+    return { valid: true, reason: "Valid voter" };
+  };
 }
 
 export function countVotesInRegions(regionTree) {
-  // Your code here
+  if (!regionTree) return 0;
+
+  const currentVotes = regionTree.votes || 0;
+  const subRegions = regionTree.subRegions || [];
+
+  return currentVotes + subRegions.reduce((sum, sub) => {
+    return sum + countVotesInRegions(sub);
+  }, 0);
 }
 
 export function tallyPure(currentTally, candidateId) {
-  // Your code here
+  const count = (currentTally[candidateId] || 0) + 1;
+  
+  return {
+    ...currentTally,
+    [candidateId]: count
+  };
 }
